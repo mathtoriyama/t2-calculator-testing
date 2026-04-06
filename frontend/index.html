@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>T₂ Calculator · Spin Coherence Analysis</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='16' cy='16' r='14' fill='none' stroke='%2300d4aa' stroke-width='2'/><circle cx='16' cy='16' r='4' fill='%2300d4aa'/><line x1='16' y1='2' x2='16' y2='8' stroke='%2300d4aa' stroke-width='2'/><line x1='16' y1='24' x2='16' y2='30' stroke='%2300d4aa' stroke-width='2'/><line x1='2' y1='16' x2='8' y2='16' stroke='%2300d4aa' stroke-width='2'/><line x1='24' y1='16' x2='30' y2='16' stroke='%2300d4aa' stroke-width='2'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <!-- MathJax for LaTeX rendering (changes 3 & 4) -->
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['\\(', '\\)']],
+        displayMath: [['\\[', '\\]']],
+        tags: 'none',
+      },
+      options: { skipHtmlTags: ['script','noscript','style','textarea','pre'] },
+      startup: { typeset: true },
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" async></script>
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+
+  <div class="bg-lattice" aria-hidden="true">
+    <canvas id="latticeCanvas"></canvas>
+  </div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="1.5"/>
+          <circle cx="20" cy="20" r="5" fill="var(--accent)" opacity="0.9"/>
+          <circle cx="20" cy="4" r="2.5" fill="var(--accent)"/>
+          <circle cx="20" cy="36" r="2.5" fill="var(--accent)"/>
+          <circle cx="4" cy="20" r="2.5" fill="var(--accent)"/>
+          <circle cx="36" cy="20" r="2.5" fill="var(--accent)"/>
+          <line x1="20" y1="6.5" x2="20" y2="15" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <line x1="20" y1="25" x2="20" y2="33.5" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <line x1="6.5" y1="20" x2="15" y2="20" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="2 2"/>
+          <line x1="25" y1="20" x2="33.5" y2="20" stroke="var(--accent)" stroke-width="1.2" stroke-dasharray="2 2"/>
+        </svg>
+        <div class="logo-text">
+          <span class="logo-title">T₂ Calculator</span>
+          <span class="logo-sub">Qubit Coherence</span>
+        </div>
+      </div>
+      <nav class="header-nav">
+        <a href="#" class="nav-link">Compute</a>
+        <a href="#database" class="nav-link">Database</a>
+        <a href="#about" class="nav-link">About</a>
+        <a href="#acknowledgements" class="nav-link">Acknowledgements</a>
+        <a href="#citation" class="nav-link">Citation</a>
+        <a href="https://galligroup.uchicago.edu" target="_blank" class="nav-link nav-github">Galli Group</a>
+      </nav>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-badge">Materials Science · Qubits</div>
+      <!-- CHANGE 2: hero-title now uses DM Sans (body font) via CSS override -->
+      <h1 class="hero-title">
+        Computing <br />
+        <span class="hero-accent">Spin Coherence Time T₂</span> <br />
+        from Crystal Structures
+      </h1>
+      <p class="hero-desc">
+        Upload a crystal structure file to predict the Hahn-echo coherence time T₂ for your material.
+      </p>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-value">Analytical Model</span>
+          <span class="stat-label">Theory-Guided</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">CIF, POSCAR</span>
+          <span class="stat-label">Format Support</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-value">Python</span>
+          <span class="stat-label">Structure Parser</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="app-main">
+    <div class="app-container">
+
+      <section class="panel upload-panel" id="uploadSection">
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span class="panel-num">01</span>
+            Upload Crystal Structure(s)
+          </h2>
+          <!-- CHANGE 5: multiple files note -->
+          <p class="panel-desc">Drag and drop one or more .cif files, or click to browse</p>
+        </div>
+
+        <!-- Dimensionality selector (shown above drop zone) -->
+        <div class="dim-selector-wrap">
+          <span class="dim-selector-label">Material dimensionality</span>
+          <div class="dim-selector-pills" role="group" aria-label="Select dimensionality">
+            <button class="dim-pill selected" id="pill3D" aria-pressed="true" onclick="selectDim('3D')">
+              3D
+              <span class="dim-pill-sub">Bulk material</span>
+            </button>
+            <button class="dim-pill" id="pill2D" aria-pressed="false" onclick="selectDim('2D')">
+              2D
+              <span class="dim-pill-sub">Monolayer</span>
+            </button>
+            <button class="dim-pill" id="pillHetero" aria-pressed="false" onclick="selectDim('HETERO')">
+              Heterostructure
+              <span class="dim-pill-sub">2D on 3D substrate</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Single drop zone — shown for 3D and 2D modes -->
+        <div class="drop-zone" id="dropZone" tabindex="0" role="button" aria-label="Upload CIF files">
+          <input type="file" id="fileInput" accept=".cif" multiple hidden />
+          <div class="drop-zone-content" id="dropContent">
+            <div class="drop-icon">
+              <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="10" y="8" width="44" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M22 8V20H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="20" y1="32" x2="44" y2="32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="20" y1="40" x2="44" y2="40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="20" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="46" cy="46" r="10" fill="var(--bg-panel)" stroke="var(--accent)" stroke-width="1.5"/>
+                <line x1="46" y1="41" x2="46" y2="51" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+                <line x1="41" y1="46" x2="51" y2="46" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+            <p class="drop-primary">Drop your <code>.cif</code> files here</p>
+            <p class="drop-secondary">or <button class="browse-btn" onclick="document.getElementById('fileInput').click()">browse files</button></p>
+            <p class="drop-hint">Multiple files supported · Maximum 10 MB each</p>
+          </div>
+          <div class="drop-zone-ready" id="fileReady" hidden>
+            <div id="fileList" class="file-list"></div>
+            <button class="file-remove-all" id="removeFile" title="Remove all files">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+              Clear all
+            </button>
+          </div>
+        </div>
+
+        <!-- Dual drop zones — shown only in Heterostructure mode -->
+        <div class="hetero-zones" id="heteroZones" hidden>
+
+          <!-- 2D zone -->
+          <div class="hetero-zone-col">
+            <div class="hetero-zone-header">
+              <span class="hetero-badge hetero-badge-2d">2D</span>
+              <span class="hetero-zone-title">Monolayer structures</span>
+            </div>
+            <div class="drop-zone hetero-drop" id="dropZone2D" tabindex="0" role="button" aria-label="Upload 2D CIF files">
+              <input type="file" id="fileInput2D" accept=".cif" multiple hidden />
+              <div class="drop-zone-content" id="dropContent2D">
+                <div class="drop-icon drop-icon-sm">
+                  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="8" width="44" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M22 8V20H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="32" x2="44" y2="32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="40" x2="44" y2="40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="46" cy="46" r="10" fill="var(--bg-panel)" stroke="var(--accent)" stroke-width="1.5"/>
+                    <line x1="46" y1="41" x2="46" y2="51" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="41" y1="46" x2="51" y2="46" stroke="var(--accent)" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="drop-primary">Drop <code>.cif</code> files here</p>
+                <p class="drop-secondary">or <button class="browse-btn" onclick="document.getElementById('fileInput2D').click()">browse</button></p>
+              </div>
+              <div class="drop-zone-ready" id="fileReady2D" hidden>
+                <div id="fileList2D" class="file-list"></div>
+                <button class="file-remove-all" id="removeFile2D" title="Remove all 2D files">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3D zone -->
+          <div class="hetero-zone-col">
+            <div class="hetero-zone-header">
+              <span class="hetero-badge hetero-badge-3d">3D</span>
+              <span class="hetero-zone-title">Bulk structures</span>
+            </div>
+            <div class="drop-zone hetero-drop hetero-drop-3d" id="dropZone3D" tabindex="0" role="button" aria-label="Upload 3D CIF files">
+              <input type="file" id="fileInput3D" accept=".cif" multiple hidden />
+              <div class="drop-zone-content" id="dropContent3D">
+                <div class="drop-icon drop-icon-sm">
+                  <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="10" y="8" width="44" height="48" rx="4" stroke="currentColor" stroke-width="1.5"/>
+                    <path d="M22 8V20H10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="32" x2="44" y2="32" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="40" x2="44" y2="40" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="20" y1="24" x2="36" y2="24" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="46" cy="46" r="10" fill="var(--bg-panel)" stroke="var(--accent2)" stroke-width="1.5"/>
+                    <line x1="46" y1="41" x2="46" y2="51" stroke="var(--accent2)" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="41" y1="46" x2="51" y2="46" stroke="var(--accent2)" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <p class="drop-primary">Drop <code>.cif</code> files here</p>
+                <p class="drop-secondary">or <button class="browse-btn browse-btn-3d" onclick="document.getElementById('fileInput3D').click()">browse</button></p>
+              </div>
+              <div class="drop-zone-ready" id="fileReady3D" hidden>
+                <div id="fileList3D" class="file-list"></div>
+                <button class="file-remove-all" id="removeFile3D" title="Remove all 3D files">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="13" height="13">
+                    <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                  </svg>
+                  Clear
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- end .hetero-zones -->
+
+        <!-- error hidden by default, only shown on problem -->
+        <div class="error-msg" id="errorMsg" hidden role="alert">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+            <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><circle cx="12" cy="16" r="0.5" fill="currentColor"/>
+          </svg>
+          <span id="errorText">An error occurred.</span>
+        </div>
+
+        <button class="compute-btn" id="computeBtn" disabled>
+          <span class="compute-btn-inner">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="18" height="18">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+            Compute T₂
+          </span>
+          <div class="btn-shimmer"></div>
+        </button>
+
+        <!-- CHANGE 4: hidden by default, shown only when computing -->
+        <div class="loading-state" id="loadingState" hidden>
+          <div class="spinner-ring"></div>
+          <div class="loading-text">
+            <p class="loading-primary">Analyzing crystal structures…</p>
+            <p class="loading-secondary" id="loadingStep">Preparing…</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Results panel -->
+      <section class="panel results-panel" id="resultsPanel" hidden>
+        <div class="panel-header">
+          <h2 class="panel-title">
+            <span class="panel-num">02</span>
+            Analysis Results
+          </h2>
+          <button class="reset-btn" id="resetBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.14"/>
+            </svg>
+            New Analysis
+          </button>
+        </div>
+
+        <!-- CHANGE 5: dynamic multi-result cards injected here by JS -->
+        <div id="multiResultsContainer"></div>
+
+        <!-- Download buttons — always visible once results are shown -->
+        <div class="download-row" id="downloadRow">
+          <button class="download-btn" id="downloadJson">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download JSON
+          </button>
+          <button class="download-btn download-btn-excel" id="downloadExcel">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+            Download Excel
+          </button>
+        </div>
+
+        <div class="raw-section">
+          <button class="raw-toggle" id="rawToggle" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+            </svg>
+            View Raw JSON Response
+            <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+              <polyline points="6 9 12 15 18 9"/>
+            </svg>
+          </button>
+          <div class="raw-content" id="rawContent" hidden>
+            <pre class="raw-json" id="rawJson">{ }</pre>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <section class="about-section" id="about">
+    <div class="about-inner">
+      <h2 class="about-title">How It Works</h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h3>Upload Structure File</h3>
+          <p>Provide a file (either a standard Crystallographic Information File .cif or a POSCAR file) describing your material's atomic structure.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h3>Structure Parsing</h3>
+          <p>The backend uses <code>pymatgen</code> to parse the structure.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h3>T₂ Computation</h3>
+          <p>A physics-based model computes the spin coherence time T₂ based on the crystal structure.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h3>Results</h3>
+          <p>Receive structured JSON output with formula, lattice constants, atom count, and computed T₂ value.</p>
+        </div>
+      </div>
+
+      <!-- Theory section -->
+      <div class="theory-section">
+        <h3 class="theory-title">Theory</h3>
+        <div class="theory-body">
+
+          <p>
+            The <strong>spin coherence time T₂</strong> describes the "quantum lifetime" of a qubit spin state in the presence of environmental noise. Interactions between the qubit spin and its environment can be described by the following many-body Hamiltonian:
+          </p>
+          <div class="theory-eq">
+            \[
+              \hat{H} = \mathbf{SDS} + \mathbf{B} \gamma_e \mathbf{S} + \sum_i \mathbf{S} \mathbf{A}_i \mathbf{I}_i + \mathbf{B} \gamma_i \mathbf{I}_i + \sum_{i>j} \mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j
+            \]
+          </div>
+          <p>
+            where \(\mathbf{SDS}\) is the zero-field splitting term, \(\mathbf{B} \gamma_e \mathbf{S}\) and \(\mathbf{B} \gamma_i \mathbf{I}_i\) are the Zeeman splitting terms, \(\mathbf{S} \mathbf{A}_i \mathbf{I}_i\) is the hyperfine term, and \(\mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j\) is the nuclear dipolar interaction term.
+            From the Hamiltonian \(\hat{H}\) and resulting density matrix \(\rho\), the coherence function \(L(t)\) of the qubit can be computed
+          </p>
+          <div class="theory-eq">
+            \[
+              L(t) = \frac{ \langle 1 | \rho(t) | 0 \rangle}{\langle 1 | \rho(0) | 0 \rangle }
+            \]
+          </div>
+          <p>
+            from which T₂ can be computed by fitting \(L(t)\) to a stretched exponential form:
+          </p>
+          <div class="theory-eq">
+            \[
+              L(t) = \exp\left(\left( \frac{t}{T_2} \right)^{\eta}\right)
+            \]
+          </div>
+
+          <p>
+            In principle, \(L(t)\) can be solved using computational methods, such as the cluster correlation expansion (CCE) approach <a href="#ref1" class="cite-link-nohover">[1]</a><a href="#ref2" class="cite-link-nohover">[2]</a>. <strong>Here, T₂ is coputed using models</strong> developed in Refs.&nbsp;<a href="#ref3" class="cite-link-nohover">[3]</a><a href="#ref4" class="cite-link-nohover">[4]</a>. These models are fitted to CCE simulations and can therefore provide reliable estimates of T₂. In developing these methods, several assumptions are made:
+          </p>
+          <ul>
+            <li>
+              The dominant decoherence mechanism is magnetic dipolar interactions between the qubit spin and nuclear isotopes present in the material. As a result, <strong>T₂ is largely a property of the host material</strong>, rather than the spin defect itself.
+            </li>
+            <li>
+              The <strong>secular approximation</strong> is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.
+            </li>
+          </ul>
+
+          <p>
+            For each naturally abundant isotope \(i\) of every element in the structure, the nuclear g-factor \(g_i\), nuclear spin quantum number \(I_i\), and natural abundance are read from the <a href="https://easyspin.org/easyspin/documentation/isotopetable.html" target="_blank">EasySpin database</a>. The nuclear spin density \(n_i\) is computed from the lattice volume and natural abundance. The single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{3D},i} = 1.46 \times 10^{18} \left|g_i\right|^{-1.64} I_i^{-1.1} n_i^{-1}
+            \]
+          </div>
+          <p>
+            Contributions from all isotopes are combined using a power-law formula&nbsp;<a href="#ref3" class="cite-link">[3]</a>:
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{3D}}^{-\eta} = \sum_i \left(T_{2,\textrm{3D},i}\right)^{-\eta}
+            \]
+          </div>
+          <p>
+            For 2D materials, a dimensional correction factor is applied&nbsp;<a href="#ref4" class="cite-link">[4]</a>:
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{2D},i} = C_{\alpha_\mathrm{2D}} n_i^{(2-\alpha_\mathrm{2D})/3} w^{-\alpha_\mathrm{2D}/3} T_{2,\textrm{3D},i}
+            \]
+            \[
+              T_{2,\textrm{2D}}^{-3/\alpha_\mathrm{2D}} = \sum_i T_{2,\textrm{2D},i}^{-3/\alpha_\mathrm{2D}}
+            \]
+          </div>
+          <p>
+            which, after fitting, simplifies to
+          </p>
+          <div class="theory-eq">
+            \[
+              T_{2,\textrm{2D},i} = 0.94 n_i^{-0.28} w^{-0.95} T_{2,\textrm{3D},i}
+            \]
+            \[
+              T_{2,\textrm{2D}}^{-1.06} = \sum_i T_{2,\textrm{2D},i}^{-1.06}
+            \]
+          </div>
+          
+          <p>
+            The thickness \(w\) is estimated using the van der Waals radii of the outermost atoms, and the 2D nuclear spin density is defined as:
+          </p>
+
+          <div class="theory-eq">
+            \[
+              n^{\mathrm{2D}}_i = n^{\mathrm{3D}}_i \cdot d
+            \]
+          </div>
+
+          <!--
+            ── FIGURES ────────────────────────────────────────────────
+            To add figures, uncomment and fill in the block below.
+            Place image files in the frontend/ folder, then set src="your-image.png".
+
+            <div class="theory-figures">
+              <figure class="theory-figure">
+                <img src="fig1.png" alt="Description" />
+                <figcaption>Figure 1. Caption text here.</figcaption>
+              </figure>
+              <figure class="theory-figure">
+                <img src="fig2.png" alt="Description" />
+                <figcaption>Figure 2. Caption text here.</figcaption>
+              </figure>
+            </div>
+          -->
+
+          <!-- Change 4: References -->
+          <div class="theory-references">
+            <h4 class="theory-references-title">References</h4>
+            <ol>
+              <li id="ref1">
+                W. Yang, W. L. Ma and R. B. Liu,
+                "Quantum many-body theory for electron spin decoherence in nanoscale nuclear spin baths,"
+                <em>Rep. Prog. Phys.</em> 80, 016001 (2017).
+                <a href="https://doi.org/10.1088/0034-4885/80/1/016001" target="_blank">DOI: 10.1088/0034-4885/80/1/016001</a>
+              </li>
+              <li id="ref2">
+                M. Onizhuk and G. Galli,
+                "<em>Colloquium</em>: Decoherence of solid-state spin qubits: A computational perspective,"
+                <em>Rev. Mod. Phys.</em> 97, 021001 (2025).
+                <a href="https://doi.org/10.1103/RevModPhys.97.021001" target="_blank">DOI: 10.1103/RevModPhys.97.021001</a>
+              </li>
+              <li id="ref3">
+                S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan, M. Onizhuk, G. Galli, D. D. Awschalom, and H. Ohno,
+                "Generalized scaling of spin qubit coherence in over 12,000 host materials,"
+                <em>Proc. Natl. Acad. Sci.</em> 119, e2121808119 (2022).
+                <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
+              </li>
+              <li id="ref4">
+                M. Y. Toriyama, J. Zhan, S. Kanai, and G. Galli,
+                "Strategies to search for two-dimensional materials with long spin qubit coherence time,"
+                <em>npj 2D Mater. Appl.</em> 9, 108 (2025).
+                <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">DOI: 10.1038/s41699-025-00623-8</a>
+              </li>
+            </ol>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── Database Explorer ──────────────────────────────────────── -->
+  <section class="db-section" id="database">
+    <div class="db-inner">
+      <h2 class="ack-title" style="margin-bottom:0.4rem;">Materials Database</h2>
+      <p class="ack-desc" style="margin-bottom:2rem;">
+        Browse predicted T₂ coherence times for 12,859 host materials. Click elements on the periodic table to filter — results show only materials whose formula contains <em>all</em> selected elements.
+      </p>
+
+      <!-- Periodic Table -->
+      <div class="ptable-wrap">
+        <div class="ptable" id="ptable"></div>
+        <div class="ptable-controls">
+          <button class="ptable-clear-btn" id="ptableClear">Clear selection</button>
+          <span class="ptable-hint" id="ptableHint">No elements selected — showing all materials</span>
+        </div>
+      </div>
+
+      <!-- Search & Sort bar -->
+      <div class="db-toolbar">
+        <div class="db-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" class="db-search-icon">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="db-search" id="dbSearch" placeholder="Search formula, e.g. SiO2…" autocomplete="off" />
+        </div>
+        <div class="db-sort-wrap">
+          <label class="db-sort-label" for="dbSort">Sort by T₂:</label>
+          <select class="db-sort" id="dbSort">
+            <option value="desc">Highest first</option>
+            <option value="asc">Lowest first</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results count -->
+      <div class="db-meta" id="dbMeta">Loading database…</div>
+
+      <!-- Table -->
+      <div class="db-table-wrap">
+        <table class="db-table" id="dbTable">
+          <thead>
+            <tr>
+              <th class="db-th">#</th>
+              <th class="db-th">Material</th>
+              <th class="db-th">MP ID</th>
+              <th class="db-th">T₂ (s)</th>
+            </tr>
+          </thead>
+          <tbody id="dbTbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="db-pagination" id="dbPagination"></div>
+    </div>
+  </section>
+
+  <!-- CHANGE 1: Acknowledgements — same dark background and layout as About section -->
+  <section class="acknowledgements-section" id="acknowledgements">
+    <div class="ack-inner">
+      <h2 class="ack-title">Acknowledgements</h2>
+      <p class="ack-desc">
+        This work was supported by the
+        <a href="https://miccom-center.org" target="_blank">Midwest Integrated Center for
+        Computational Materials (MICCoM)</a>. MICCoM is part of the Computational Materials
+        Sciences Program funded by the US Department of Energy, Office of Science, Basic Energy
+        Sciences, Materials Sciences, and Engineering Division through the Argonne National
+        Laboratory, under contract No. DE-AC02-06CH11357.
+      </p>
+    </div>
+  </section>
+
+  <section class="acknowledgements-section" id="citation">
+    <div class="ack-inner">
+      <h2 class="ack-title">Citation</h2>
+      <p class="ack-desc">If you use this website in your research, please cite:</p>
+      <ol class="ack-desc" style="margin-top:0.75rem;padding-left:1.5rem;">
+        <li style="margin-bottom:0.6rem;">
+          S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan,
+          M. Onizhuk, G. Galli, D. D. Awschalom, and H. Ohno,
+          "Generalized scaling of spin qubit coherence in over 12,000 host materials,"
+          <em>Proc. Natl. Acad. Sci.</em> 119, e2121808119 (2022).
+          <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a>
+        </li>
+        <li>
+          M. Y. Toriyama, J. Zhan, S. Kanai, and G. Galli,
+          "Strategies to search for two-dimensional materials with long spin qubit coherence time,"
+          <em>npj 2D Mater. Appl.</em> 9, 108 (2025).
+          <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">DOI: 10.1038/s41699-025-00623-8</a>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-logo">T₂ Calculator</div>
+      <p class="footer-copy">Built with FastAPI · Open Source</p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
