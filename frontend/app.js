@@ -591,6 +591,7 @@ let db_page       = 1;
 const DB_PER_PAGE = 50;
 let db_sort       = 'desc';
 let db_search     = '';
+let db_filter_mode = 'at-least'; // 'at-least' | 'only'
 
 // ── Build periodic table DOM ───────────────────────────────────
 function buildPeriodicTable() {
@@ -668,7 +669,8 @@ function updateHint() {
   if (db_selected.size === 0) {
     hint.textContent = 'No elements selected — showing all materials';
   } else {
-    hint.textContent = `Selected: ${[...db_selected].join(', ')}`;
+    const modeLabel = db_filter_mode === 'only' ? 'only' : 'at least';
+    hint.textContent = `Selected (${modeLabel}): ${[...db_selected].join(', ')}`;
   }
 }
 
@@ -678,8 +680,13 @@ function applyFilters() {
   const q = db_search.trim().toLowerCase();
 
   db_filtered = DB_DATA.filter(row => {
-    // Element filter: material must contain ALL selected elements
-    if (selArr.length > 0 && !selArr.every(e => row.el.includes(e))) return false;
+    // Element filter
+    if (selArr.length > 0) {
+      const hasAll = selArr.every(e => row.el.includes(e));
+      if (!hasAll) return false;
+      // 'only' mode: material must not contain any elements outside the selection
+      if (db_filter_mode === 'only' && row.el.some(e => !selArr.includes(e))) return false;
+    }
     // Text search filter
     if (q && !row.m.toLowerCase().includes(q) && !row.id.toLowerCase().includes(q)) return false;
     return true;
@@ -797,6 +804,10 @@ function updateMeta() {
   // Sort control
   const sortEl = document.getElementById('dbSort');
   if (sortEl) sortEl.addEventListener('change', () => { db_sort = sortEl.value; applyFilters(); });
+
+  // Filter mode control
+  const filterModeEl = document.getElementById('dbFilterMode');
+  if (filterModeEl) filterModeEl.addEventListener('change', () => { db_filter_mode = filterModeEl.value; updateHint(); applyFilters(); });
 
   // Search control (debounced)
   const searchEl = document.getElementById('dbSearch');

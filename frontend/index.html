@@ -317,6 +317,70 @@
     </div>
   </main>
 
+  <!-- ── Database Explorer ──────────────────────────────────────── -->
+  <section class="db-section" id="database">
+    <div class="db-inner">
+      <h2 class="ack-title" style="margin-bottom:0.4rem;">Materials Database</h2>
+      <p class="ack-desc" style="margin-bottom:2rem;">
+        Browse predicted T₂ coherence times for 12,859 host materials. Click elements on the periodic table to filter by composition.
+      </p>
+
+      <!-- Periodic Table -->
+      <div class="ptable-wrap">
+        <div class="ptable" id="ptable"></div>
+        <div class="ptable-controls">
+          <button class="ptable-clear-btn" id="ptableClear">Clear selection</button>
+          <span class="ptable-hint" id="ptableHint">No elements selected — showing all materials</span>
+        </div>
+      </div>
+
+      <!-- Search & Sort bar -->
+      <div class="db-toolbar">
+        <div class="db-search-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" class="db-search-icon">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="db-search" id="dbSearch" placeholder="Search formula, e.g. SiO2…" autocomplete="off" />
+        </div>
+        <div class="db-sort-wrap">
+          <label class="db-sort-label" for="dbFilterMode">Elements:</label>
+          <select class="db-sort" id="dbFilterMode">
+            <option value="at-least">At least selected</option>
+            <option value="only">Only selected</option>
+          </select>
+        </div>
+        <div class="db-sort-wrap">
+          <label class="db-sort-label" for="dbSort">Sort by T₂:</label>
+          <select class="db-sort" id="dbSort">
+            <option value="desc">Highest first</option>
+            <option value="asc">Lowest first</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Results count -->
+      <div class="db-meta" id="dbMeta">Loading database…</div>
+
+      <!-- Table -->
+      <div class="db-table-wrap">
+        <table class="db-table" id="dbTable">
+          <thead>
+            <tr>
+              <th class="db-th">#</th>
+              <th class="db-th">Material</th>
+              <th class="db-th">MP ID</th>
+              <th class="db-th">T₂ (s)</th>
+            </tr>
+          </thead>
+          <tbody id="dbTbody"></tbody>
+        </table>
+      </div>
+
+      <!-- Pagination -->
+      <div class="db-pagination" id="dbPagination"></div>
+    </div>
+  </section>
+
   <section class="about-section" id="about">
     <div class="about-inner">
       <h2 class="about-title">How It Works</h2>
@@ -486,63 +550,6 @@
         </div>
       </div>
 
-    </div>
-  </section>
-
-  <!-- ── Database Explorer ──────────────────────────────────────── -->
-  <section class="db-section" id="database">
-    <div class="db-inner">
-      <h2 class="ack-title" style="margin-bottom:0.4rem;">Materials Database</h2>
-      <p class="ack-desc" style="margin-bottom:2rem;">
-        Browse predicted T₂ coherence times for 12,859 host materials. Click elements on the periodic table to filter — results show only materials whose formula contains <em>all</em> selected elements.
-      </p>
-
-      <!-- Periodic Table -->
-      <div class="ptable-wrap">
-        <div class="ptable" id="ptable"></div>
-        <div class="ptable-controls">
-          <button class="ptable-clear-btn" id="ptableClear">Clear selection</button>
-          <span class="ptable-hint" id="ptableHint">No elements selected — showing all materials</span>
-        </div>
-      </div>
-
-      <!-- Search & Sort bar -->
-      <div class="db-toolbar">
-        <div class="db-search-wrap">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" class="db-search-icon">
-            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-          </svg>
-          <input type="text" class="db-search" id="dbSearch" placeholder="Search formula, e.g. SiO2…" autocomplete="off" />
-        </div>
-        <div class="db-sort-wrap">
-          <label class="db-sort-label" for="dbSort">Sort by T₂:</label>
-          <select class="db-sort" id="dbSort">
-            <option value="desc">Highest first</option>
-            <option value="asc">Lowest first</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Results count -->
-      <div class="db-meta" id="dbMeta">Loading database…</div>
-
-      <!-- Table -->
-      <div class="db-table-wrap">
-        <table class="db-table" id="dbTable">
-          <thead>
-            <tr>
-              <th class="db-th">#</th>
-              <th class="db-th">Material</th>
-              <th class="db-th">MP ID</th>
-              <th class="db-th">T₂ (s)</th>
-            </tr>
-          </thead>
-          <tbody id="dbTbody"></tbody>
-        </table>
-      </div>
-
-      <!-- Pagination -->
-      <div class="db-pagination" id="dbPagination"></div>
     </div>
   </section>
 
