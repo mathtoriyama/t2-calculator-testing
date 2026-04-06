@@ -12,6 +12,9 @@ const CONFIG = {
   ALLOWED_EXT: '.cif',
 };
 
+// Add near the top of app.js, after CONFIG is defined
+fetch(`${CONFIG.API_BASE}/health`).catch(() => {});  // Wake up Render on page load
+
 // ── DOM helpers ───────────────────────────────────────────────────────────────
 const $ = id => document.getElementById(id);
 
