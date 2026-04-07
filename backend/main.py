@@ -299,10 +299,13 @@ def Compute_T2_3D(struc: Structure) -> float:
     """
 
     T2_elems = []
-    for element in set(struc.species):
-        print(element)
+
+    elements = [str(specie) for specie in struc.composition.element_composition]
+    
+    for element in set(elements):
         element = str(element)
         df_elem = all_spins[all_spins["symbol"] == element]
+        print(element)
         print(df_elem)
         for i, row in df_elem.iterrows():
 
