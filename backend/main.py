@@ -274,14 +274,6 @@ def Get_NuclearSpinDensity_3D(natural_abundance_percent, structure, atom_type):
     return number_density * (natural_abundance_percent/100)
 
 
-
-# Calculate the T2 value of an element (3D)
-def T2_Kanai_Element_3D(n_3D, g, I):
-    #T2_Eq2 = 1.5e18 * np.abs(g)**(-1.6) * I**(-1.1) * (n_3D)**(-1.0)
-    T2_Eq2 = 1.50e18 * np.abs(g)**(-1.65) * I**(-1.09) * (n_3D)**(-1.0)    
-    return T2_Eq2
-
-
 def Compute_T2_3D(struc: Structure) -> float:
     """
     Calculate the T2 time for a 3D material, considering all atom types.
@@ -315,8 +307,7 @@ def Compute_T2_3D(struc: Structure) -> float:
             if np.any(np.array([n_3D,g,I]) == 0.0): continue
 
             # Calculate T2 of element
-            #T2_elem_3D = T2_Kanai_Element(n_3D, g, I)
-            T2_elem_3D = T2_Kanai_Element_3D(n_3D, g, I)
+            T2_elem_3D = T2_Kanai_Element(n_3D, g, I)
 
             T2_elems.append(T2_elem_3D)
 
