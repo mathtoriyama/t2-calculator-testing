@@ -300,8 +300,10 @@ def Compute_T2_3D(struc: Structure) -> float:
 
     T2_elems = []
     for element in set(struc.species):
+        print(element)
         element = str(element)
         df_elem = all_spins[all_spins["symbol"] == element]
+        print(df_elem)
         for i, row in df_elem.iterrows():
 
             # Get relevant isotope data
