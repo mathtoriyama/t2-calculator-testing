@@ -228,7 +228,9 @@ def Compute_T2_2D(struc: Structure) -> float:
     elements = [str(specie.element) for specie in struc.composition.elements]
 
     for element in set(elements):
+        print(element)
         df_elem = all_spins[all_spins["symbol"] == element]
+        print(df_elem)
         for i, row in df_elem.iterrows():
 
             # Get relevant isotope data
