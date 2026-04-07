@@ -133,6 +133,8 @@ def T2_Kanai_Element(n_3D, g, I):
 # Calculate T2 of a compound (input: list of T2 of each element)
 def T2_Kanai(T2_list: list, exp: float):
     T2_values = np.array(T2_list)
+    print(T2_values)
+    print(exp)
     T2_combined = np.sum( T2_values**(-exp) )**(-1./exp)
     return T2_combined #**(2./3)
 
