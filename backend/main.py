@@ -133,9 +133,6 @@ def T2_Kanai_Element(n_3D, g, I):
 # Calculate T2 of a compound (input: list of T2 of each element)
 def T2_Kanai(T2_list: list, exp: float):
     T2_values = np.array(T2_list)
-    print(T2_values)
-    print(exp)
-    return 1
     T2_combined = np.sum( T2_values**(-exp) )**(-1./exp)
     return T2_combined #**(2./3)
 
@@ -224,15 +221,10 @@ def Compute_T2_2D(struc: Structure) -> float:
     T2_elems = []
 
     # Get elements (not species, which can have charge)
-    #elements = [str(specie) for specie in struc.composition.element_composition]
-    elements = [str(specie.element) for specie in struc.composition.elements]
-
-    print("Elements: ", elements)
+    elements = [str(specie) for specie in struc.composition.element_composition]
 
     for element in set(elements):
-        print(element)
         df_elem = all_spins[all_spins["symbol"] == element]
-        print(df_elem)
         for i, row in df_elem.iterrows():
 
             # Get relevant isotope data
@@ -303,10 +295,7 @@ def Compute_T2_3D(struc: Structure) -> float:
     elements = [str(specie) for specie in struc.composition.element_composition]
     
     for element in set(elements):
-        element = str(element)
         df_elem = all_spins[all_spins["symbol"] == element]
-        print(element)
-        print(df_elem)
         for i, row in df_elem.iterrows():
 
             # Get relevant isotope data
