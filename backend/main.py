@@ -227,6 +227,8 @@ def Compute_T2_2D(struc: Structure) -> float:
     #elements = [str(specie) for specie in struc.composition.element_composition]
     elements = [str(specie.element) for specie in struc.composition.elements]
 
+    print("Elements: ", elements)
+
     for element in set(elements):
         print(element)
         df_elem = all_spins[all_spins["symbol"] == element]
