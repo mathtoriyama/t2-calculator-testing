@@ -135,6 +135,7 @@ def T2_Kanai(T2_list: list, exp: float):
     T2_values = np.array(T2_list)
     print(T2_values)
     print(exp)
+    return 1
     T2_combined = np.sum( T2_values**(-exp) )**(-1./exp)
     return T2_combined #**(2./3)
 
