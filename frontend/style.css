@@ -1188,3 +1188,185 @@ code {
   .steps-grid { grid-template-columns: 1fr; }
   .info-grid { grid-template-columns: 1fr; }
 }
+
+/* ── Welcome Hero (index.html) ── */
+.welcome-hero {
+  position: relative;
+  z-index: 1;
+  min-height: calc(100vh - 64px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5rem 2rem 4rem;
+  overflow: hidden;
+}
+
+.welcome-hero-inner {
+  max-width: 1100px;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 5rem;
+}
+
+/* Decorative rotating atom rings */
+.welcome-rings {
+  flex-shrink: 0;
+  position: relative;
+  width: 280px;
+  height: 280px;
+}
+.welcome-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--accent);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+}
+.welcome-ring-1 {
+  width: 280px; height: 280px;
+  border-color: rgba(0,212,170,0.15);
+  animation: ring-spin 18s linear infinite;
+}
+.welcome-ring-2 {
+  width: 200px; height: 200px;
+  border-color: rgba(0,212,170,0.25);
+  animation: ring-spin 12s linear infinite reverse;
+}
+.welcome-ring-3 {
+  width: 120px; height: 120px;
+  border-color: rgba(0,212,170,0.4);
+  animation: ring-spin 7s linear infinite;
+}
+.welcome-ring-core {
+  position: absolute;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  box-shadow: 0 0 32px var(--accent-glow), 0 0 64px rgba(0,212,170,0.15);
+}
+/* Orbiting dots on ring-1 */
+.welcome-ring-1::before,
+.welcome-ring-1::after {
+  content: '';
+  position: absolute;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  top: -4px; left: 50%;
+  transform: translateX(-50%);
+  box-shadow: 0 0 8px var(--accent);
+}
+.welcome-ring-1::after {
+  top: auto; bottom: -4px;
+}
+@keyframes ring-spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* Welcome text */
+.welcome-text {
+  flex: 1;
+  min-width: 0;
+}
+.welcome-eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  color: var(--text-3);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin-bottom: 1.25rem;
+}
+.welcome-eyebrow-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px var(--accent);
+  animation: pulse-dot 2.5s ease-in-out infinite;
+}
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%       { opacity: 0.5; transform: scale(0.7); }
+}
+.welcome-title {
+  font-family: var(--font-body);
+  font-size: clamp(2.2rem, 5vw, 3.8rem);
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  color: var(--text);
+  margin-bottom: 1.25rem;
+}
+.welcome-title-accent {
+  background: linear-gradient(90deg, var(--accent) 0%, #00f0c8 50%, var(--accent2) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear infinite;
+}
+.welcome-subtitle {
+  font-size: 1rem;
+  color: var(--text-2);
+  line-height: 1.75;
+  max-width: 520px;
+  margin-bottom: 2rem;
+}
+.welcome-cta-row {
+  display: flex;
+  gap: 0.85rem;
+  flex-wrap: wrap;
+}
+.welcome-cta-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent) 0%, #00b890 100%);
+  color: #080c10;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 4px 20px rgba(0,212,170,0.3);
+}
+.welcome-cta-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+.welcome-cta-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.welcome-cta-secondary:hover {
+  border-color: var(--accent2);
+  background: var(--accent2-dim);
+  transform: translateY(-1px);
+}
+
+@media (max-width: 860px) {
+  .welcome-hero-inner { flex-direction: column; gap: 2.5rem; text-align: center; }
+  .welcome-rings { width: 180px; height: 180px; }
+  .welcome-ring-1 { width: 180px; height: 180px; }
+  .welcome-ring-2 { width: 128px; height: 128px; }
+  .welcome-ring-3 { width: 76px; height: 76px; }
+  .welcome-subtitle { margin: 0 auto 2rem; }
+  .welcome-cta-row { justify-content: center; }
+  .welcome-eyebrow { justify-content: center; }
+}
