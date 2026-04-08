@@ -76,7 +76,7 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
             Open the Calculator
           </a>
-          <a href="database.html" class="welcome-cta-secondary">
+          <a href="database.html" class="welcome-cta-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"/><path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"/></svg>
             Browse the Database
           </a>
@@ -85,55 +85,6 @@
     </div>
   </section>
 
-  <!-- How It Works -->
-  <section class="about-section" id="about">
-    <div class="about-inner">
-      <h2 class="about-title">How It Works</h2>
-      <div class="steps-grid">
-        <div class="step-card"><div class="step-num">01</div><h3>Upload Structure File</h3><p>Provide a Crystallographic Information File (.cif) describing your material's atomic structure.</p></div>
-        <div class="step-card"><div class="step-num">02</div><h3>Structure Parsing</h3><p>The backend uses <code>pymatgen</code> to parse the structure.</p></div>
-        <div class="step-card"><div class="step-num">03</div><h3>T&#x2082; Computation</h3><p>A physics-based model computes the spin coherence time T&#x2082; based on the crystal structure.</p></div>
-        <div class="step-card"><div class="step-num">04</div><h3>Results</h3><p>Receive structured JSON output with formula, lattice constants, atom count, and computed T&#x2082; value.</p></div>
-      </div>
-
-      <div class="theory-section">
-        <h3 class="theory-title">Theory</h3>
-        <div class="theory-body">
-          <p>The <strong>spin coherence time T&#x2082;</strong> describes the "quantum lifetime" of a qubit spin state in the presence of environmental noise. Interactions between the qubit spin and its environment can be described by the following many-body Hamiltonian:</p>
-          <div class="theory-eq">\[\hat{H} = \mathbf{SDS} + \mathbf{B} \gamma_e \mathbf{S} + \sum_i \mathbf{S} \mathbf{A}_i \mathbf{I}_i + \mathbf{B} \gamma_i \mathbf{I}_i + \sum_{i>j} \mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j\]</div>
-          <p>where \(\mathbf{SDS}\) is the zero-field splitting term, \(\mathbf{B} \gamma_e \mathbf{S}\) and \(\mathbf{B} \gamma_i \mathbf{I}_i\) are the Zeeman splitting terms, \(\mathbf{S} \mathbf{A}_i \mathbf{I}_i\) is the hyperfine term, and \(\mathbf{I}_i \mathbf{J}_{ij} \mathbf{I}_j\) is the nuclear dipolar interaction term. From the Hamiltonian \(\hat{H}\) and resulting density matrix \(\rho\), the coherence function \(L(t)\) of the qubit can be computed</p>
-          <div class="theory-eq">\[L(t) = \frac{ \langle 1 | \rho(t) | 0 \rangle}{\langle 1 | \rho(0) | 0 \rangle }\]</div>
-          <p>from which T&#x2082; can be computed by fitting \(L(t)\) to a stretched exponential form:</p>
-          <div class="theory-eq">\[L(t) = \exp\left(\left( \frac{t}{T_2} \right)^{\eta}\right)\]</div>
-          <p>In principle, \(L(t)\) can be solved using computational methods, such as the cluster correlation expansion (CCE) approach <a href="#ref1" class="cite-link-nohover">[1]</a><a href="#ref2" class="cite-link-nohover">[2]</a>. <strong>Here, T&#x2082; is computed using models</strong> developed in Refs.&nbsp;<a href="#ref3" class="cite-link-nohover">[3]</a><a href="#ref4" class="cite-link-nohover">[4]</a>. These models are fitted to CCE simulations and can therefore provide reliable estimates of T&#x2082;. In developing these methods, several assumptions are made:</p>
-          <ul>
-            <li>The dominant decoherence mechanism is magnetic dipolar interactions between the qubit spin and nuclear isotopes present in the material. As a result, <strong>T&#x2082; is largely a property of the host material</strong>, rather than the spin defect itself.</li>
-            <li>The <strong>secular approximation</strong> is invoked, which is permitted when \(\hat{S}_z\) is a good quantum number. This is generally a safe approximation in the high magnetic field limit.</li>
-          </ul>
-          <p>For each naturally abundant isotope \(i\) of every element in the structure, the nuclear g-factor \(g_i\), nuclear spin quantum number \(I_i\), and natural abundance are read from the <a href="https://easyspin.org/easyspin/documentation/isotopetable.html" target="_blank">EasySpin database</a>. The nuclear spin density \(n_i\) is computed from the lattice volume and natural abundance. The single-element coherence time scales as&nbsp;<a href="#ref3" class="cite-link">[3]</a>:</p>
-          <div class="theory-eq">\[T_{2,\textrm{3D},i} = 1.46 \times 10^{18} \left|g_i\right|^{-1.64} I_i^{-1.1} n_i^{-1}\]</div>
-          <p>Contributions from all isotopes are combined using a power-law formula&nbsp;<a href="#ref3" class="cite-link">[3]</a>:</p>
-          <div class="theory-eq">\[T_{2,\textrm{3D}}^{-\eta} = \sum_i \left(T_{2,\textrm{3D},i}\right)^{-\eta}\]</div>
-          <p>For 2D materials, a dimensional correction factor is applied&nbsp;<a href="#ref4" class="cite-link">[4]</a>:</p>
-          <div class="theory-eq">\[T_{2,\textrm{2D},i} = C_{\alpha_\mathrm{2D}} n_i^{(2-\alpha_\mathrm{2D})/3} w^{-\alpha_\mathrm{2D}/3} T_{2,\textrm{3D},i}\]\[T_{2,\textrm{2D}}^{-3/\alpha_\mathrm{2D}} = \sum_i T_{2,\textrm{2D},i}^{-3/\alpha_\mathrm{2D}}\]</div>
-          <p>which, after fitting, simplifies to</p>
-          <div class="theory-eq">\[T_{2,\textrm{2D},i} = 0.94 n_i^{-0.28} w^{-0.95} T_{2,\textrm{3D},i}\]\[T_{2,\textrm{2D}}^{-1.06} = \sum_i T_{2,\textrm{2D},i}^{-1.06}\]</div>
-          <p>The thickness \(w\) is estimated using the van der Waals radii of the outermost atoms, and the 2D nuclear spin density is defined as:</p>
-          <div class="theory-eq">\[n^{\mathrm{2D}}_i = n^{\mathrm{3D}}_i \cdot d\]</div>
-
-          <div class="theory-references">
-            <h4 class="theory-references-title">References</h4>
-            <ol>
-              <li id="ref1">W. Yang, W. L. Ma and R. B. Liu, "Quantum many-body theory for electron spin decoherence in nanoscale nuclear spin baths," <em>Rep. Prog. Phys.</em> 80, 016001 (2017). <a href="https://doi.org/10.1088/0034-4885/80/1/016001" target="_blank">DOI: 10.1088/0034-4885/80/1/016001</a></li>
-              <li id="ref2">M. Onizhuk and G. Galli, "<em>Colloquium</em>: Decoherence of solid-state spin qubits: A computational perspective," <em>Rev. Mod. Phys.</em> 97, 021001 (2025). <a href="https://doi.org/10.1103/RevModPhys.97.021001" target="_blank">DOI: 10.1103/RevModPhys.97.021001</a></li>
-              <li id="ref3">S. Kanai, F. J. Heremans, H. Seo, G. Wolfowicz, C. P. Anderson, S. E. Sullivan, M. Onizhuk, G. Galli, D. D. Awschalom, and H. Ohno, "Generalized scaling of spin qubit coherence in over 12,000 host materials," <em>Proc. Natl. Acad. Sci.</em> 119, e2121808119 (2022). <a href="https://doi.org/10.1073/pnas.2121808119" target="_blank">DOI: 10.1073/pnas.2121808119</a></li>
-              <li id="ref4">M. Y. Toriyama, J. Zhan, S. Kanai, and G. Galli, "Strategies to search for two-dimensional materials with long spin qubit coherence time," <em>npj 2D Mater. Appl.</em> 9, 108 (2025). <a href="https://doi.org/10.1038/s41699-025-00623-8" target="_blank">DOI: 10.1038/s41699-025-00623-8</a></li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
 
   <footer class="site-footer">
     <div class="footer-inner">
