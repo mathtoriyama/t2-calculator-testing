@@ -44,10 +44,25 @@
   <section class="db-section" id="database" style="padding-top:5rem;">
     <div class="db-inner">
       <h2 class="ack-title" style="margin-bottom:0.4rem;">Materials Database</h2>
-      <p class="ack-desc" style="margin-bottom:2rem;">
-        Browse predicted T&#x2082; coherence times for over 12,000 host materials. Click elements on the periodic table to filter by composition.
+      <p class="ack-desc" style="margin-bottom:1.5rem;">
+        Browse predicted T&#x2082; coherence times. Use the toggle to switch between 3D bulk materials and 2D monolayer materials. Click elements on the periodic table to filter by composition.
       </p>
 
+      <!-- Dimensionality toggle -->
+      <div class="db-dim-toggle" id="dbDimToggle">
+        <button class="db-dim-btn selected" id="dbDim3D" data-dim="3D">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          3D Bulk Materials
+          <span class="db-dim-count" id="count3D"></span>
+        </button>
+        <button class="db-dim-btn" id="dbDim2D" data-dim="2D">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="12" x2="21" y2="12" stroke-dasharray="3 2"/></svg>
+          2D Monolayer Materials
+          <span class="db-dim-count" id="count2D"></span>
+        </button>
+      </div>
+
+      <!-- Periodic Table -->
       <div class="ptable-wrap">
         <div class="ptable" id="ptable"></div>
         <div class="ptable-controls">
@@ -56,10 +71,11 @@
         </div>
       </div>
 
+      <!-- Search & Sort bar -->
       <div class="db-toolbar">
         <div class="db-search-wrap">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" class="db-search-icon"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" class="db-search" id="dbSearch" placeholder="Search formula, e.g. SiO2&hellip;" autocomplete="off" />
+          <input type="text" class="db-search" id="dbSearch" placeholder="Search formula or ID&hellip;" autocomplete="off" />
         </div>
         <div class="db-sort-wrap">
           <label class="db-sort-label" for="dbFilterMode">Elements:</label>
@@ -77,22 +93,26 @@
         </div>
       </div>
 
+      <!-- Results count -->
       <div class="db-meta" id="dbMeta">Loading database&hellip;</div>
 
+      <!-- Table -->
       <div class="db-table-wrap">
         <table class="db-table" id="dbTable">
           <thead>
             <tr>
               <th class="db-th">#</th>
               <th class="db-th">Material</th>
-              <th class="db-th">MP ID</th>
-              <th class="db-th">T&#x2082; (s)</th>
+              <th class="db-th" id="dbColId">ID</th>
+              <th class="db-th" id="dbColSrc" style="display:none">Source Database</th>
+              <th class="db-th">T&#x2082;</th>
             </tr>
           </thead>
           <tbody id="dbTbody"></tbody>
         </table>
       </div>
 
+      <!-- Pagination -->
       <div class="db-pagination" id="dbPagination"></div>
     </div>
   </section>

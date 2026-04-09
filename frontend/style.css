@@ -1339,22 +1339,6 @@ code {
   box-shadow: 0 4px 20px rgba(0,212,170,0.3);
 }
 .welcome-cta-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-.welcome-cta-blue {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: var(--radius);
-  background: linear-gradient(135deg, var(--accent2) 0%, #2a6fd6 100%);
-  color: #ffffff;
-  font-family: var(--font-body);
-  font-weight: 600;
-  font-size: 0.9rem;
-  text-decoration: none;
-  transition: opacity 0.2s, transform 0.15s;
-  box-shadow: 0 4px 20px rgba(59,143,255,0.3);
-}
-.welcome-cta-blue:hover { opacity: 0.9; transform: translateY(-1px); }
 .welcome-cta-secondary {
   display: inline-flex;
   align-items: center;
@@ -1385,4 +1369,82 @@ code {
   .welcome-subtitle { margin: 0 auto 2rem; }
   .welcome-cta-row { justify-content: center; }
   .welcome-eyebrow { justify-content: center; }
+}
+
+/* ── Database dimensionality toggle ── */
+.db-dim-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+}
+.db-dim-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.2s;
+}
+.db-dim-btn:hover {
+  border-color: var(--accent);
+  color: var(--text);
+}
+.db-dim-btn.selected {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-dim);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+.db-dim-count {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-light);
+  border-radius: 20px;
+  padding: 0.05em 0.55em;
+  color: var(--text-3);
+  margin-left: 0.2rem;
+  min-width: 2rem;
+  text-align: center;
+}
+.db-dim-btn.selected .db-dim-count {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--bg-card);
+}
+
+/* ── Source database badges ── */
+.db-src-badge {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  padding: 0.18em 0.6em;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.db-src-2dmp {
+  background: rgba(0, 212, 170, 0.1);
+  border-color: rgba(0, 212, 170, 0.3);
+  color: var(--accent);
+}
+.db-src-c2db {
+  background: rgba(59, 143, 255, 0.1);
+  border-color: rgba(59, 143, 255, 0.3);
+  color: var(--accent2);
+}
+.db-src-alex {
+  background: rgba(180, 130, 255, 0.1);
+  border-color: rgba(180, 130, 255, 0.3);
+  color: #b482ff;
 }
