@@ -1359,6 +1359,22 @@ code {
   background: var(--accent2-dim);
   transform: translateY(-1px);
 }
+.welcome-cta-blue {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, var(--accent2) 0%, #2a6fd6 100%);
+  color: #ffffff;
+  font-family: var(--font-body);
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-decoration: none;
+  transition: opacity 0.2s, transform 0.15s;
+  box-shadow: 0 4px 20px rgba(59,143,255,0.3);
+}
+.welcome-cta-blue:hover { opacity: 0.9; transform: translateY(-1px); }
 
 @media (max-width: 860px) {
   .welcome-hero-inner { flex-direction: column; gap: 2.5rem; text-align: center; }
